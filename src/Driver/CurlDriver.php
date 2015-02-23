@@ -65,6 +65,9 @@ class CurlDriver
 
     private function processResponse($info)
     {
+        if (!$info) {
+            throw DriverException::curlError(curl_error($this->curl), curl_errno($this->curl));
+        }
         $pos = curl_getinfo($this->curl, CURLINFO_HEADER_SIZE);
         $status = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
         $headers = $this->processHead(substr($info, 0, $pos));

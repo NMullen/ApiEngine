@@ -25,7 +25,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function testPost()
     {
         $this->assertInstanceOf('Psr\\Http\\Message\\ResponseInterface',
-            $response = $this->client->post('1d1u1dh1', ['fizz' => 'buzz']));
+            $response = $this->client->post('1d1u1dh1', ['fizz' => 'buzz', 'buzz' => 'does fizz']));
         $this->assertSame(200, $response->getStatusCode());
     }
 }
