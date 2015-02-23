@@ -1,0 +1,43 @@
+{
+  "name": "nmullen/apiengine",
+  "description": "A common base for consuming APIs",
+  "keywords": [
+    "nmullen",
+    "apiengine",
+    "API"
+  ],
+  "homepage": "https://github.com/nmullen/apiengine",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Nicholas Mullen",
+      "email": "nicholas.mullen@bigpond.com",
+      "homepage": "https://github.com/nmullen/",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "psr/log": "1.0.*@dev",
+    "psr/http-message": "1.0.*@dev",
+    "kriswallsmith/buzz": "dev-master",
+    "monolog/monolog": "1.12.0"
+  },
+  "require-dev": {
+  },
+  "autoload": {
+    "psr-4": {
+      "Nmullen\\ApiEngine\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Nmullen\\ApiEngine\\Test\\": "tests"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0-dev"
+    }
+  }
+}
