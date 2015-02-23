@@ -58,8 +58,7 @@ class CurlDriver
                 break;
             case 'POST':
                 curl_setopt($curl, CURLOPT_POST, true);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, json_decode($request->getBody()));
-                var_dump((string)$request->getBody());
+                curl_setopt($curl, CURLOPT_POSTFIELDS, (string)$request->getBody());
                 break;
         }
     }

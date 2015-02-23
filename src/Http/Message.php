@@ -13,7 +13,6 @@ trait Message
 
     private $body;
 
-
     /**
      * Retrieves the HTTP protocol version as a string.
      *

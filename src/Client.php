@@ -50,6 +50,7 @@ class Client
     {
         $url = $this->basepath->withPath($path);
         $stream = new Stream('php://memory');
+        $stream->write(http_build_query($paramaters));
         $request = new Request('POST', $url, $headers, $stream);
         return $this->send($request);
     }
