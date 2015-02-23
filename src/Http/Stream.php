@@ -15,6 +15,18 @@ class Stream implements StreamableInterface
         $this->attach($stream, $mode);
     }
 
+    public function attach($resource, $mode)
+    {
+        if (is_resource($resource)) {
+            $this->resource = $resource;
+        } elseif (is_string($resource)) {
+            $this->resource = fopen($resource, $mode);
+        }
+        if (!is_resource($this->resource)) {
+            throw InvalidArgumentException::InvalidStreamProvided($resource);
+        }
+    }
+
     /**
      * Closes the stream and any underlying resources.
      *
@@ -40,18 +52,6 @@ class Stream implements StreamableInterface
         return $resource;
     }
 
-    public function attach($resource, $mode)
-    {
-        if (is_resource($resource)) {
-            $this->resource = $resource;
-        } elseif (is_string($resource)) {
-            $this->resource = fopen($resource, $mode);
-        }
-        if (!is_resource($this->resource)) {
-            throw InvalidArgumentException::InvalidStreamProvided($resource);
-        }
-    }
-
     /**
      * Get the size of the stream if known
      *
@@ -70,26 +70,6 @@ class Stream implements StreamableInterface
     public function tell()
     {
         return ($this->resource ? ftell($this->resource) : false);
-    }
-
-    /**
-     * Returns true if the stream is at the end of the stream.
-     *
-     * @return bool
-     */
-    public function eof()
-    {
-        return ($this->resource ? feof($this->resource) : true);
-    }
-
-    /**
-     * Returns whether or not the stream is seekable.
-     *
-     * @return bool
-     */
-    public function isSeekable()
-    {
-        return ($this->resource ? $this->getMetadata('seekable') : false);
     }
 
     /**
@@ -114,23 +94,37 @@ class Stream implements StreamableInterface
     }
 
     /**
-     * Seek to the beginning of the stream.
+     * Returns whether or not the stream is seekable.
      *
-     * If the stream is not seekable, this method will return FALSE, indicating
-     * failure; otherwise, it will perform a seek(0), and return the status of
-     * that operation.
-     *
-     * @see seek()
-     * @link http://www.php.net/manual/en/function.fseek.php
-     * @return bool Returns TRUE on success or FALSE on failure.
+     * @return bool
      */
-    public function rewind()
+    public function isSeekable()
     {
-        if (!$this->isSeekable()) {
-            return false;
+        return ($this->resource ? $this->getMetadata('seekable') : false);
+    }
+
+    /**
+     * Get stream metadata as an associative array or retrieve a specific key.
+     *
+     * The keys returned are identical to the keys returned from PHP's
+     * stream_get_meta_data() function.
+     *
+     * @link http://php.net/manual/en/function.stream-get-meta-data.php
+     * @param string $key Specific metadata to retrieve.
+     * @return array|mixed|null Returns an associative array if no key is
+     *     provided. Returns a specific key value if a key is provided and the
+     *     value is found, or null if the key is not found.
+     */
+    public function getMetadata($key = null)
+    {
+        if (null === $key) {
+            return stream_get_meta_data($this->resource);
         }
-        $result = fseek($this->resource, 0);
-        return (0 === $result);
+        $metadata = stream_get_meta_data($this->resource);
+        if (!array_key_exists($key, $metadata)) {
+            return null;
+        }
+        return $metadata[$key];
     }
 
     /**
@@ -167,20 +161,6 @@ class Stream implements StreamableInterface
     }
 
     /**
-     * Returns whether or not the stream is readable.
-     *
-     * @return bool
-     */
-    public function isReadable()
-    {
-        if (!$this->resource) {
-            return false;
-        }
-        $mode = $this->getMetadata('mode');
-        return (strstr($mode, 'r') || strstr($mode, '+'));
-    }
-
-    /**
      * Read data from the stream.
      *
      * @param int $length Read up to $length bytes from the object and return
@@ -201,6 +181,35 @@ class Stream implements StreamableInterface
     }
 
     /**
+     * Returns whether or not the stream is readable.
+     *
+     * @return bool
+     */
+    public function isReadable()
+    {
+        if (!$this->resource) {
+            return false;
+        }
+        $mode = $this->getMetadata('mode');
+        return (strstr($mode, 'r') || strstr($mode, '+'));
+    }
+
+    /**
+     * Returns true if the stream is at the end of the stream.
+     *
+     * @return bool
+     */
+    public function eof()
+    {
+        return ($this->resource ? feof($this->resource) : true);
+    }
+
+    function __toString()
+    {
+        return $this->getContents();
+    }
+
+    /**
      * Returns the remaining contents in a string
      *
      * @return string
@@ -215,31 +224,22 @@ class Stream implements StreamableInterface
     }
 
     /**
-     * Get stream metadata as an associative array or retrieve a specific key.
+     * Seek to the beginning of the stream.
      *
-     * The keys returned are identical to the keys returned from PHP's
-     * stream_get_meta_data() function.
+     * If the stream is not seekable, this method will return FALSE, indicating
+     * failure; otherwise, it will perform a seek(0), and return the status of
+     * that operation.
      *
-     * @link http://php.net/manual/en/function.stream-get-meta-data.php
-     * @param string $key Specific metadata to retrieve.
-     * @return array|mixed|null Returns an associative array if no key is
-     *     provided. Returns a specific key value if a key is provided and the
-     *     value is found, or null if the key is not found.
+     * @see seek()
+     * @link http://www.php.net/manual/en/function.fseek.php
+     * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function getMetadata($key = null)
+    public function rewind()
     {
-        if (null === $key) {
-            return stream_get_meta_data($this->resource);
+        if (!$this->isSeekable()) {
+            return false;
         }
-        $metadata = stream_get_meta_data($this->resource);
-        if (!array_key_exists($key, $metadata)) {
-            return null;
-        }
-        return $metadata[$key];
-    }
-
-    function __toString()
-    {
-        return $this->getContents();
+        $result = fseek($this->resource, 0);
+        return (0 === $result);
     }
 }

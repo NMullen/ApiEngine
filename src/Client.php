@@ -3,6 +3,7 @@ namespace Nmullen\ApiEngine;
 
 use Nmullen\ApiEngine\Driver\CurlDriver;
 use Nmullen\ApiEngine\Http\Request;
+use Nmullen\ApiEngine\Http\Stream;
 use Nmullen\ApiEngine\Http\Uri;
 use Psr\Http\Message\RequestInterface;
 
@@ -30,6 +31,7 @@ class Client
         $this->options = array_merge($this->options, $options);
         $this->driver = new CurlDriver($this->getOption('curl'));
         $this->basepath = new Uri($this->getOption('base_path'));
+
     }
 
     public function getOption($key)
@@ -42,6 +44,14 @@ class Client
         $url = $this->basepath->withPath($path);
         $url = $url->withQuery(http_build_query($parameters));
         return $this->send(new Request('GET', $url, $headers));
+    }
+
+    public function post($path, $paramaters = [], $headers = [])
+    {
+        $url = $this->basepath->withPath($path);
+        $stream = new Stream('php://memory');
+        $request = new Request('POST', $url, $headers, $stream);
+        return $this->send($request);
     }
 
     public function send(RequestInterface $request)

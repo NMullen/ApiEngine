@@ -43,11 +43,7 @@ class Request implements RequestInterface
         $this->method = $method;
         $this->uri = $uri;
         $this->headers = $headers;
-        if (is_resource($body)) {
-            $this->body = $body;
-        } else {
-            $this->body = new Stream('php://memory');
-        }
+        $this->body = $body;
     }
 
     /**

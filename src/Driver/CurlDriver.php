@@ -40,10 +40,13 @@ class CurlDriver
     public function prepareCurl(Request $request)
     {
         $curl = $this->curl;
-
+        $header = [];
+        foreach ($request->getHeaders() as $key => $value) {
+            $header[$key] = implode(', ', $value);
+        }
         curl_setopt($curl, CURLOPT_URL, $request->getRequestTarget());
         curl_setopt($curl, CURLOPT_HTTP_VERSION, $request->getProtocolVersion());
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $request->getHeaders());
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->options['timeout']);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->options['connection']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -55,7 +58,8 @@ class CurlDriver
                 break;
             case 'POST':
                 curl_setopt($curl, CURLOPT_POST, true);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $request->getBody()->getContents());
+                curl_setopt($curl, CURLOPT_POSTFIELDS, json_decode($request->getBody()));
+                var_dump((string)$request->getBody());
                 break;
         }
     }

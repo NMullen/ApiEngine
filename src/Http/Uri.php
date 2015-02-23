@@ -256,11 +256,9 @@ class Uri implements UriInterface
         if (!is_string($path)) {
             throw InvalidArgumentException::InvalidType('path', 'string', $path);
         }
-
-        if ($path[0] !== '/') {
+        if ($path === '' || $path[0] !== '/') {
             $path = '/' . $path;
         }
-
         $new = clone $this;
         $new->path = $path;
         return $new;
