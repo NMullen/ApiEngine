@@ -40,6 +40,24 @@ class CurlDriver
     public function prepareCurl(Request $request)
     {
         $curl = $this->curl;
+        switch ($request->getMethod()) {
+            case 'GET':
+                curl_setopt($curl, CURLOPT_HTTPGET, true);
+                break;
+            case 'HEAD':
+                curl_setopt($curl, CURLOPT_NOBODY, true);
+                break;
+            case 'POST':
+            case 'PUT':
+            case 'DELETE':
+            case 'PATCH':
+            case 'OPTIONS':
+                curl_setopt($curl, CURLOPT_POSTFIELDS, (string)$request->getBody());
+                if ($request->hasHeader('content-type')) {
+                    $request->withoutHeader('content-type');
+                }
+                break;
+        }
         $header = [];
         foreach ($request->getHeaders() as $key => $value) {
             $header[$key] = implode(', ', $value);
@@ -51,16 +69,6 @@ class CurlDriver
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->options['connection']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HEADER, true);
-
-        switch ($request->getMethod()) {
-            case 'GET':
-                curl_setopt($curl, CURLOPT_HTTPGET, true);
-                break;
-            case 'POST':
-                curl_setopt($curl, CURLOPT_POST, true);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, (string)$request->getBody());
-                break;
-        }
     }
 
     private function processResponse($info)
