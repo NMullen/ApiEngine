@@ -6,12 +6,12 @@ use Nmullen\ApiEngine\Http\Request;
 use Nmullen\ApiEngine\Http\Uri;
 use Psr\Http\Message\ResponseInterface;
 
-class ResponseListener
+class RedirectListener
 {
 
     public function getEvents()
     {
-        return ['postSend' => 1];
+        return ['postSend' => 10];
     }
 
     public function postSend(ResponseInterface $response)

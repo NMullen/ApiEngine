@@ -2,6 +2,7 @@
 
 namespace Nmullen\ApiEngine\Events\Listener;
 
+use Exception;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -10,6 +11,9 @@ use Psr\Log\LoggerInterface;
 class LogListener implements LoggerAwareInterface
 {
 
+    /**
+     * @var LoggerInterface
+     */
     private $logger;
 
     public function getEvents()
@@ -29,9 +33,9 @@ class LogListener implements LoggerAwareInterface
         return $response;
     }
 
-    public function postException($exception)
+    public function postException(Exception $exception)
     {
-        $this->logger->addError($exception->getMessage(), $exception->getTrace());
+        $this->logger->error($exception->getMessage(), $exception->getTrace());
         return $exception;
     }
 

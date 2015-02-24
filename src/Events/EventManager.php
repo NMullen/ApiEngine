@@ -2,6 +2,8 @@
 
 namespace Nmullen\ApiEngine\Events;
 
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 
@@ -36,12 +38,11 @@ class EventManager implements LoggerAwareInterface
 
     public function preSend($request)
     {
-        array_walk_recursive($this->listeners['preSend'], function ($key) use ($request) {
-            if (is_object($key)) {
+        array_walk_recursive($this->listeners['preSend'], function ($key) use (& $request) {
+            if (is_object($key) && $request instanceof RequestInterface) {
                 $request = $key->preSend($request);
             }
             if ($request instanceof \Psr\Http\Message\ResponseInterface) {
-                $this->response = $request;
                 return true;
             }
         });
@@ -50,21 +51,14 @@ class EventManager implements LoggerAwareInterface
 
     public function postSend($response)
     {
-        foreach ($this->listeners['postSend'] as $level => $key) {
-            foreach ($key as $event) {
-                $response = $event->postSend($response);
-                if ($response instanceof \Psr\Http\Message\RequestInterface) {
-                    $this->logger->info('redirecting');
-                    return $response;
-                }
+        array_walk_recursive($this->listeners['postSend'], function ($key) use (&$response) {
+            if (is_object($key) && $response instanceof ResponseInterface) {
+                $response = $key->postSend($response);
             }
-        }
+        });
         return $response;
     }
 
-    /**
-     * @return mixed
-     */
     public function getResponse()
     {
         return $this->response;

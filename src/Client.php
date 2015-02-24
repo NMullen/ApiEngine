@@ -4,12 +4,13 @@ namespace Nmullen\ApiEngine;
 use Nmullen\ApiEngine\Driver\CurlDriver;
 use Nmullen\ApiEngine\Events\EventManager;
 use Nmullen\ApiEngine\Events\Listener\LogListener;
-use Nmullen\ApiEngine\Events\Listener\ResponseListener;
+use Nmullen\ApiEngine\Events\Listener\RedirectListener;
 use Nmullen\ApiEngine\Exception\DriverException;
 use Nmullen\ApiEngine\Http\Request;
 use Nmullen\ApiEngine\Http\Stream;
 use Nmullen\ApiEngine\Http\Uri;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class Client
 {
@@ -43,7 +44,7 @@ class Client
         $this->events = new EventManager();
         $this->events->setLogger($logger);
         $this->events->addListener(new LogListener());
-        $this->events->addListener(new ResponseListener());
+        $this->events->addListener(new RedirectListener());
     }
 
     /**
@@ -70,6 +71,35 @@ class Client
         return $this->send(new Request('GET', $url, $headers));
     }
 
+    public function send(RequestInterface $request)
+    {
+        try {
+            $response = null;
+
+            $request = $this->events->preSend($request);
+
+            if ($request instanceof Request) {
+                $response = $this->driver->send($request);
+            } elseif ($request instanceof ResponseInterface) {
+                $response = $request;
+            }
+
+            if ($response instanceof ResponseInterface) {
+                $response = $this->events->postSend($response);
+            }
+
+            if ($response instanceof RequestInterface) {
+                return $this->send($response);
+            } elseif ($response instanceof ResponseInterface) {
+                return $response;
+            }
+
+        } catch (DriverException $e) {
+            $this->events;
+            throw DriverException::curlError($e->getMessage(), $e->getTrace());
+        }
+    }
+
     public function post($path, $parameters = [], $headers = [])
     {
         $url = $this->base_path->withPath($path);
@@ -77,25 +107,5 @@ class Client
         $stream->write(http_build_query($parameters));
         $request = new Request('POST', $url, $headers, $stream);
         return $this->send($request);
-    }
-
-    public function send(RequestInterface $request)
-    {
-        try {
-            $request = $this->events->preSend($request);
-            if (!$this->events->getResponse()) {
-                $response = $this->driver->send($request);
-            } else {
-                $response = $this->events->getResponse();
-            }
-            $response = $this->events->postSend($response);
-            if ($response instanceof \Psr\Http\Message\RequestInterface) {
-                $response = $this->send($response);
-            }
-        } catch (DriverException $e) {
-            $this->events;
-            throw DriverException::curlError($e->getMessage(), $e->getTrace());
-        }
-        return $response;
     }
 }
