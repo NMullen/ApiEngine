@@ -2,8 +2,8 @@
 
 namespace Nmullen\ApiEngine\Events\Listener;
 
-use Nmullen\ApiEngine\Http\Request;
-use Nmullen\ApiEngine\Http\Uri;
+use Nmullen\Http\Request;
+use Nmullen\Http\Uri;
 use Psr\Http\Message\ResponseInterface;
 
 class RedirectListener

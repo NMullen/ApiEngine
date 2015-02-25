@@ -5,9 +5,9 @@ use Nmullen\ApiEngine\Driver\CurlDriver;
 use Nmullen\ApiEngine\Events\EventManager;
 use Nmullen\ApiEngine\Events\Listener\LogListener;
 use Nmullen\ApiEngine\Events\Listener\RedirectListener;
-use Nmullen\ApiEngine\Http\Request;
-use Nmullen\ApiEngine\Http\Stream;
-use Nmullen\ApiEngine\Http\Uri;
+use Nmullen\Http\Request;
+use Nmullen\Http\Stream;
+use Nmullen\Http\Uri;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -61,7 +61,7 @@ class Client
      * @param $path string Appended to the base_path to form the request url.
      * @param array $parameters Values appended to the request url as a query string.
      * @param array $headers Headers to send with the request.
-     * @return Http\Response
+     * @return ResponseInterface
      */
     public function get($path, $parameters = [], $headers = [])
     {

@@ -16,13 +16,28 @@
       "role": "Developer"
     }
   ],
+  "repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "nmullen/http",
+        "version": "dev",
+        "source": {
+          "url": "https://github.com/NMullen/Http.git",
+          "type": "git",
+          "reference": "master"
+        }
+      }
+    }
+  ],
   "require": {
     "php": ">=5.4.0",
     "psr/log": "1.0.*@dev",
     "psr/http-message": "1.0.*@dev",
-    "monolog/monolog": "1.12.0"
+    "Nmullen/Http": "dev"
   },
   "require-dev": {
+    "monolog/monolog": "1.12.0"
   },
   "autoload": {
     "psr-4": {

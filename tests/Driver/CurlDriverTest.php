@@ -8,7 +8,7 @@ class CurlDriverTest extends PHPUnit_Framework_TestCase
      */
     private $curl;
     /**
-     * @var \Nmullen\ApiEngine\Http\Request
+     * @var \Nmullen\Http\Request
      */
     private $request;
 
@@ -21,7 +21,7 @@ class CurlDriverTest extends PHPUnit_Framework_TestCase
     {
         $this->assertTrue(true);
     }
-    /*
+    /*//
     public function testGet()
     {
         $uri = new \Nmullen\ApiEngine\Http\Uri('http://httpbin.org/html');
@@ -29,6 +29,7 @@ class CurlDriverTest extends PHPUnit_Framework_TestCase
         $response = $this->curl->send($request);
         $this->assertSame(200, $response->getStatusCode());
         $body = $response->getBody()->getContents();
+        $response->getBody()->seek(0);
         $this->assertStringStartsWith('<!DOCTYPE html>', $body);
     }
 
