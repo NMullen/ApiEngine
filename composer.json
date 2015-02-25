@@ -16,17 +16,11 @@
       "role": "Developer"
     }
   ],
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/nmullen/http.git"
-    }
-  ],
   "require": {
     "php": ">=5.4.0",
     "psr/log": "1.0.*@dev",
     "psr/http-message": "1.0.*@dev",
-    "nmullen/http": "*"
+    "nmullen/http": "1.0.*@dev"
   },
   "require-dev": {
     "monolog/monolog": "1.12.0"
