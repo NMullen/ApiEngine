@@ -14,6 +14,8 @@ class CurlDriver
 
     private $options;
 
+    private $header = [];
+
     public function __construct($options = [])
     {
         $options['timeout'] = array_key_exists('timeout', $options) ? $options['timeout'] : 5;
@@ -68,7 +70,16 @@ class CurlDriver
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->options['timeout']);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->options['connection']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HEADER, true);
+        curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_HEADERFUNCTION, [$this, 'header_callback']);
+    }
+
+    public function header_callback($curl, $header_line)
+    {
+        preg_match_all('/(.*)\:\s(.*)/', $header_line, $match);
+        $header = array_combine($match[1], $match[2]);
+        $this->header = array_merge($this->header, $header);
+        return strlen($header_line);
     }
 
     private function processResponse($info)
@@ -76,18 +87,13 @@ class CurlDriver
         if (!$info) {
             throw DriverException::curlError(curl_error($this->curl), curl_errno($this->curl));
         }
-        $pos = curl_getinfo($this->curl, CURLINFO_HEADER_SIZE);
-        $status = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
-        $headers = $this->processHead(substr($info, 0, $pos));
         $body = new Stream(tempnam(sys_get_temp_dir(), 'apiEngine'), 'rb+');
-        $body->write(substr($info, $pos));
-        return new Response($status, $headers, $body);
-    }
-
-    private function processHead($head)
-    {
-        preg_match_all('/(.*)\:\s(.*)/', $head, $match);
-        return array_combine($match[1], $match[2]);
+        $body->write($info);
+        return new Response(
+            curl_getinfo($this->curl, CURLINFO_HTTP_CODE),
+            $this->header,
+            $body
+        );
     }
 
     private function executeCurl()

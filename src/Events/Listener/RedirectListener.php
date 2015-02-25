@@ -17,7 +17,7 @@ class RedirectListener
     public function postSend(ResponseInterface $response)
     {
         if ($response->getStatusCode() > 300 && $response->getStatusCode() < 399 && $response->hasHeader('location')) {
-            return new Request('GET', new Uri($response->getHeader('location')));
+            return new Request('GET', new Uri($response->getHeader('Location')));
         }
         return $response;
     }

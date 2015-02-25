@@ -5,7 +5,6 @@ use Nmullen\ApiEngine\Driver\CurlDriver;
 use Nmullen\ApiEngine\Events\EventManager;
 use Nmullen\ApiEngine\Events\Listener\LogListener;
 use Nmullen\ApiEngine\Events\Listener\RedirectListener;
-use Nmullen\ApiEngine\Exception\DriverException;
 use Nmullen\ApiEngine\Http\Request;
 use Nmullen\ApiEngine\Http\Stream;
 use Nmullen\ApiEngine\Http\Uri;
@@ -73,30 +72,24 @@ class Client
 
     public function send(RequestInterface $request)
     {
-        try {
-            $response = null;
+        $response = null;
 
-            $request = $this->events->preSend($request);
+        $request = $this->events->preSend($request);
 
-            if ($request instanceof Request) {
-                $response = $this->driver->send($request);
-            } elseif ($request instanceof ResponseInterface) {
-                $response = $request;
-            }
+        if ($request instanceof Request) {
+            $response = $this->driver->send($request);
+        } elseif ($request instanceof ResponseInterface) {
+            $response = $request;
+        }
 
-            if ($response instanceof ResponseInterface) {
-                $response = $this->events->postSend($response);
-            }
+        if ($response instanceof ResponseInterface) {
+            $response = $this->events->postSend($response);
+        }
 
-            if ($response instanceof RequestInterface) {
-                return $this->send($response);
-            } elseif ($response instanceof ResponseInterface) {
-                return $response;
-            }
-
-        } catch (DriverException $e) {
-            $this->events;
-            throw DriverException::curlError($e->getMessage(), $e->getTrace());
+        if ($response instanceof RequestInterface) {
+            return $this->send($response);
+        } elseif ($response instanceof ResponseInterface) {
+            return $response;
         }
     }
 

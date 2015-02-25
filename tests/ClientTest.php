@@ -21,6 +21,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(true);
         $this->assertInstanceOf('Psr\\Http\\Message\\ResponseInterface', $response = $this->client->get('/'));
         $this->assertSame(200, $response->getStatusCode());
+
     }
 
     public function testPost()

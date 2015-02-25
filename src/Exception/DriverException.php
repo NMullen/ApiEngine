@@ -11,6 +11,7 @@ class DriverException extends \Exception implements ApiEngineException
 
     public static function curlError($error, $num)
     {
-        return new self($error, $num);
+        return new self(sprintf('curl %s %s', $num, $error));
+        //return new self($error, $num);
     }
 }
